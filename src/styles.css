@@ -1,0 +1,45 @@
+/******************************************************************************
+          Name: styles.js
+        Author: Chad Chapman
+  Date Created: December 29, 2022
+   Description: CSS Stylesheet for research seminar paper.
+******************************************************************************/
+* {
+    margin: 0;
+    padding: 0;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.abstract-header {
+    font-size: 20px;
+    text-align: center;
+}
+
+.abstract {
+    margin-top: 10px;
+    margin-left: 100px;
+    margin-right: 100px;
+    text-indent: 50px;
+}
+
+h1 {
+    margin-left: 100px;
+    margin-right: 100px;
+    margin-top: 70px;
+    text-align: center;
+}
+
+h3 {
+    margin-left: 100px;
+    margin-right: 100px;
+}
+
+.info {
+    margin-top: 50px;
+    margin-bottom: 50px;
+    text-align: center;
+}
+
+.section-1 {
+    margin-top: 300px;
+}
