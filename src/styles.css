@@ -22,6 +22,50 @@
     text-indent: 50px;
 }
 
+.body-text {
+    margin-left: 100px;
+    margin-right: 100px;
+    margin-bottom: 30px;
+    text-indent: 50px;
+    line-height: 25px;
+}
+
+.body-text-no-indent {
+    margin-left: 100px;
+    margin-right: 100px;
+    margin-bottom: 30px;
+    line-height: 25px;
+}
+
+figure {
+    display: flex;
+    margin-left: 100px;
+    margin-right: 100px;
+    margin-bottom: 30px;
+}
+
+.figure-image {
+    display: flex;
+    flex-direction: column;
+    margin-left: 100px;
+    margin-right: 100px;
+    margin-bottom: 30px;
+}
+
+.figure-image figcaption {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 30px;
+}
+
+figure img {
+    margin-left: auto;
+}
+
+figcaption {
+    margin-left: auto;
+}
+
 h1 {
     margin-left: 100px;
     margin-right: 100px;
@@ -32,6 +76,7 @@ h1 {
 h3 {
     margin-left: 100px;
     margin-right: 100px;
+    margin-bottom: 15px;
 }
 
 .info {
@@ -40,6 +85,15 @@ h3 {
     text-align: center;
 }
 
+.number {
+    width: 35px;
+}
 .section-1 {
     margin-top: 300px;
+}
+
+table {
+    border: solid black 1px;
+    margin-left: 100px;
+    margin-right: 100px;
 }

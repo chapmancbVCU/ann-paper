@@ -8,7 +8,9 @@
     <link rel="stylesheet" href="./src/styles.css">
 </head>
 <body>
-    <h1>Implementation of Artificial Neural Networks Using a Hardware Description Language</h1>
+    <h1>Implementation of Artificial Neural Networks Using a Hardware 
+        Description Language
+    </h1>
 
     <div class="info">
         <p>Chad Chapman</p>
@@ -17,14 +19,462 @@
     </div>
 
     <p class="abstract-header"><strong>Abstract</strong></p>
+
     <p class="abstract">This paper presents the idea of implementing 
         artificial neural networks in hardware and the issues involved to get 
         an efficient design.  The discussion will start with a short 
         introduction to neural networks, the algorithms involved, and finally 
         how to put the algorithm in the context of hardware.  In order to put 
         this problem in the context of a software engineering exercise the 
-        programming language called VHDL will be used.</p>
+        programming language called VHDL will be used.
+    </p>
 
     <h3 class="section-1">1. Introduction</h3>
+
+    <p class="body-text">Machine learning has inspired several methods for 
+        solving problems in the field of artificial intelligence.  For 
+        instance, artificial neural networks were developed as an attempt to 
+        model how the brain works on a computer by learning how to get to the 
+        correct answer through experience.  So far there have been surprising 
+        results in applications like image analysis, hand writing recognition, 
+        and predicting bank transactions that are more likely to be made by 
+        stolen credit cards [6, 7].  The major inspiration is the fact that 
+        the building block of a neural network, both biological and 
+        artificial, is an information-processing unit that when used in large 
+        numbers has significant processing power [6].
+    </p>
+
+    <p class="body-text">Functional units working together in parallel are the 
+        main goal behind research and development for artificial neural 
+        networks [6, 7].  But what if we can improve upon the idea of parallel 
+        processing with respect to ANNs by bringing the implementation down to 
+        the hardware level [7]?  With advances in technology it is possible 
+        while retaining a software engineering emphasis using a hardware 
+        description language [1, 7].  A hardware description language is a 
+        programming language that is used to describe digital systems.  This 
+        type of language is useful for describing the components of a system, 
+        simulating hardware on a computer, and synthesizing the hardware.   
+        The language that will be discussed is VHISIC (Very High Speed 
+        Integrated Circuits) Hardware Description Language (VHDL) [1].  By 
+        using VHDL the architecture of an ANN can be described and eventually 
+        implemented as hardware on an FPGA.  Since resources on FPGAs are an 
+        issue we will emphasize topics like data representation and 
+        arithmetic [5].
+    </p>
+
+    <p class="body-text">In the following sections we will show possible 
+        ways to describe the architecture of an artificial neural network 
+        using VHDL. First a discussion on ANNs in general is in order so 
+        that the problems behind implementation in hardware can be better 
+        understood.  We will first talk about the neuron, the basic 
+        building block any neural network, and how a certain organization 
+        of these neurons in layers gives rise to the implementations of a 
+        very commonly used algorithm called the back propagation 
+        algorithm.  The purpose of using this algorithm is to train a 
+        network with one or more hidden layers called the perceptron.
+    </p>
+
+    <p class="body-text">After setting the framework for the back 
+        propagation algorithm we will discuss the hardware and software 
+        side of implementing an ANN.  The advantages and disadvantages of 
+        implementation in hardware and software will be discussed here 
+        along with why FPGAs are more favorable than other electronic 
+        devices.  Then VHDL will be introduced in more detail, how it is 
+        different from other programming languages, and how syntax 
+        dictates how the ANNs are mapped into hardware with respect to 
+        specific steps in the back propagation algorithm.
+    </p>
+
+    <h3>2. The Artificial Neural Network</h3>
+
+    <p class="body-text">There are several architectures proposed for ANNs 
+        that are based on how we believe the human brain works.  In a 
+        biological neural network, the basic building block is the neuron 
+        which has connections with other neurons called synapses [6].  
+        Approximately 100 billion of these neurons form the human brain which 
+        can process information in parallel and distributed manner where the 
+        information is believed to be stored in the connections between 
+        neurons.  In an ANN these connections are represented as weights which 
+        express the strength of the connections between neurons with respect 
+        to learning and experience [7].
+    </p>
+
+    <p class="body-text">Through these connections a neuron accepts a set of 
+        input signals.  In a biological neural network these input signals are 
+        chemicals that travel to the cell body as an action potential that has 
+        to reach the neuron’s threshold in order to be transmitted as output.  
+        An artificial neuron also receives an input but in the form of either 
+        input data or output from other neurons that is used by an activation 
+        function to determine if a threshold or activation level is reached.  
+        The input signals, weights, and activation function as all that the 
+        simplest type of neural network needs to function [6].  This simple 
+        neural network is called the perceptron and is the basic building 
+        block of larger networks that are referred to as multilayer neural 
+        networks or multilayer perceptron (MLP) [4, 5, 6, 7, 8].
+    </p>
+
+    <h3>2.1 The Perceptron</h3>
+
+    <p class="body-text">The perceptron can be described as the simplest 
+        neural network possible.  It consists of a set of input signals X 
+        where X={x<sub>1</sub>,x<sub>2</sub>,…,x<sub>n</sub>}, synapses that 
+        are represented as weights W such that W={w<sub>1</sub>,w<sub>2</sub>
+        ,…,w<sub>n</sub>}, a linear combiner whose output is
+    </p>
+
+    <figure>
+        <img src="https://latex.codecogs.com/svg.image?S=\sum_{i=1}^{n}{x_{i}w_{i}-\o&space;=0}\mathbf{}" 
+            title="https://latex.codecogs.com/svg.image?S=\sum_{i=1}^{n}{x_{i}w_{i}-\o =0}\mathbf{}" />
+        <figcaption>(1)</figcaption>
+    </figure>
+    
+    <p class="body-text-no-indent">where S is the sum of the i<sup>th</sup> input signal x<sub>i</sub>
+        multiplied by the ith weight w<sub>i</sub>, n number of inputs, and 𝜃 is 
+        the threshold.  The neuron uses the sigmoid function as its 
+        activation function written as
+    </p>
+
+    <figure>
+        <img src="https://latex.codecogs.com/svg.image?Y=\frac{1}{1&plus;e^{-x}}" 
+            title="https://latex.codecogs.com/svg.image?Y=\frac{1}{1+e^{-x}}" />
+        <figcaption>(2)</figcaption>
+    </figure>
+
+    <p class="body-text-no-indent">where 𝑌 denotes the neuron's output.  Since we are 
+        interested in the back-propagation algorithm for the multilayer 
+        perceptron the sigmoid function is used.  When the entire network 
+        consists of only one perceptron the step function is used [6].
+    </p>
+
+    <h3>2.2 Multilayer Perceptron</h3>
+
+    <p class="body-text">A Multilayer perceptron is a neural network 
+        architecture that consist of layers of perceptrons.  It is a 
+        feedforward neural network which is an ANN with an input layer, one or 
+        more hidden layers, and an output layer where signals get accepted at 
+        the input layer and are propagated forward one layer at a time [6, 7].
+    </p>
+
+    <p class="body-text">The function of the input layer is to receive data as 
+        input and pass it along to neurons in the hidden layer.  In general, 
+        the input layer does not have to do any calculations while the hidden 
+        and output layers consist of computational neurons.  The 
+        back-propagation algorithm uses these layers for the feedforward and 
+        weight training stage where the weights for each neuron are adjusted.
+    </p>
+
+    <p class="body-text">The back-propagation algorithm consists of four 
+        steps.  The first step is to randomly initialize values for the 
+        weights and threshold level for each neuron.  The second step is to 
+        activate the network by providing inputs to the network and using 
+        those inputs for calculating the outputs for the neurons in the hidden 
+        layer(s) and output layer.  In the third step weight training occurs.  
+        This is where error gradient, weight corrections, and updating of the 
+        weights for each level occur.  The error gradient is a value that is 
+        determined by an error signal multiplied by the derivative of the 
+        activation function.
+    </p>
+
+    <p class="body-text">Thus, for error signals e<sub>1</sub>, e<sub>2</sub>, 
+        ..., e<sub>l</sub>, where l denotes the index for neurons in the 
+        output layer, the output of neuron k is calculated by the following:
+    </p>
+
+    <figure>
+        <img src="https://latex.codecogs.com/svg.image?e_{k}(P)=y_{d,k}(P)-y_{k}(P)" 
+            title="https://latex.codecogs.com/svg.image?e_{k}(P)=y_{d,k}(P)-y_{k}(P)" />
+        <figcaption>(3)</figcaption>
+    </figure>
+
+    <p class="body-text-no-indent">where p is the number of the iteration and 
+        y<sub>d,k</sub>(P) is the output that we want and y<sub>k</sub>(P) is 
+        the sigmoid function where x=X<sub>k</sub>(P).  We also need to use 
+        the learning rule to apply the weight corrections.  The learning rule 
+        is 
+    </p>
+
+    <figure>
+        <img src="https://latex.codecogs.com/svg.image?w_{jk}(P&plus;1)=w_{jk}&plus;\Delta&space;W_{jk}(P)" 
+            title="https://latex.codecogs.com/svg.image?w_{jk}(P+1)=w_{jk}+\Delta W_{jk}(P)" />
+        <figcaption>(4)</figcaption>
+    </figure>
+
+    <p class="body-text-no-indent">where 𝑤𝑗𝑘 is the weight that will be updated between 
+        the output and hidden layers and ∆𝑤𝑗𝑘(𝑝) is the function for the 
+        weight correction.  Let  𝛿𝑘(𝑝) be the error gradient and 𝛼 as the 
+        error gradient.  Now the weight correction is defined as
+    </p>
+
+    <figure>
+        <img src="https://latex.codecogs.com/svg.image?\Delta&space;w_{jk}(P)=&space;\alpha&space;\times&space;y_{j}(P)\times&space;\Im&space;_{k}(P)" 
+        title="https://latex.codecogs.com/svg.image?\Delta w_{jk}(P)= \alpha \times y_{j}(P)\times \Im _{k}(P)" />
+        <figcaption>(5)</figcaption>
+    </figure>
+
+    <p class="body-text-no-indent">and the error gradient is</p>
+
+    <figure>
+        <img src="https://latex.codecogs.com/svg.image?\Im_{k}(P)=y_{k}(P)\times&space;[1-y_{k}(P)]\times&space;e_{k}(P)" 
+        title="https://latex.codecogs.com/svg.image?\Im_{k}(P)=y_{k}(P)\times [1-y_{k}(P)]\times e_{k}(P)" />
+        <figcaption>(6)</figcaption>
+    </figure>
+
+    <p class="body-text-no-indent">Step four is where the value for the 
+        iteration 𝑝 is incremented followed by going back to step two.  We 
+        repeat this process until the desired output is achieved [6].
+    </p>
+
+    <h3>3 Implementation</h3>
+
+    <p class="body-text">Our goal here is to discuss the advantages of 
+        implementing an artificial neural network and how to use VHDL to 
+        describe the ANN architecture so that resources on an FPGA is used 
+        efficiently.  Issues that we will consider are hardware vs. software 
+        implementation, parallelism, and using VHDL to describe the ANN.
+    </p>
+
+    <h3>3.1 Hardware vs. Software</h3>
+
+    <p class="body-text">When considering how to implement an artificial 
+        neural network it is important to realize that there are advantages 
+        and disadvantages to both hardware and software.  Software is great 
+        for simulations and research with respect to new algorithms [4].   
+        But hardware implementation has the advantage of parallelism similar 
+        to a biological neural network that can’t be achieved with software.  
+        This parallelism is limited but it can be achieved by having neurons 
+        on a particular layer doing calculations simultaneously, running 
+        different training sessions in parallel, and pipelining [4, 7].
+    </p>
+
+    <p class="body-text">When neurons in the same layer performing 
+        calculations at the same time, called node parallelism, is where the 
+        highest level of parallelism is achieved when the ANN is implemented 
+        on an FPGA [7].  This is because FPGAs are divided into configurable 
+        logic blocks (CLBs) which are cells of logic resources that can 
+        operate in parallel.  Each CLB consist of look-up tables (LUTs), 
+        multiplexers, arithmetic gates, and storage elements that can be used 
+        for flip-flops and latches [7, 9].
+    </p>
+
+    <p class="body-text">The architecture of an FPGA provides these 
+        advantages but only if proper design practices are used when 
+        describing the hardware with VHDL code.  The way you describe the 
+        hardware is important because FPGAs have limited space.  Therefore, 
+        when considering how to implement an ANN the available hardware and 
+        the precision used for the arithmetic must be taken into account [4].
+    </p>
+
+    <h3>3.2 Describing an Artificial Neural Network with VHD</h3>
+
+    <p class="body-text">When working with VHDL it is important to consider 
+        that the statements in the source code is not executed in a sequential 
+        manner.  Instead the source code is a combination of concurrent and 
+        sequential statements.  In general statements are executed 
+        concurrently, at the same time, except for subroutines called 
+        processes whose statements are executed sequentially.  VHDL also has 
+        something called signal assignment which is similar to variable 
+        assignments except that signals are not updated immediately [1].
+    </p>
+
+    <p class="body-text">Now we will look at the description of the perceptron 
+        that was described earlier with respect to VHDL.  The perceptron has 
+        to accept inputs, be assigned weights and threshold values, the 
+        weights times the inputs, activation function, and output.  All of 
+        this has to be described in a way with the intention of being 
+        synthesized onto a FPGA.  First the weights times the sum, called the 
+        weighted sum of the inputs, should deserve some special attention [6].
+    </p>
+
+    <p class="body-text">Multiplication in hardware is very tricky since it 
+        can consume a lot of hardware area.  The main issues are how to 
+        describe the multiplication and the representation of data [5, 7].  
+        The following code segment is an example of straight forward 
+        multiplication.
+    </p>
+
+    <figure class="figure-image">
+        <img src="./src/images/vhdl-mult.png" 
+            alt="Code example of performing multiplication in VHDL">
+        <figcaption>Figure 1 - Multiplication Example</figcaption>
+    </figure>
+
+    <p class="body-text-no-indent">In this example we have all the basic parts 
+        of a VHDL file.  The key word “ENTITY” represents the inputs and 
+        outputs for what is being described and “ARCHITECTURE” contains signal 
+        and variable declarations along with subroutines   One type of 
+        subroutine is called the ‘PROCESS’.  The process contains a 
+        sensitivity list which are the inputs and when an input changes value 
+        the process begins execution in a sequential manner between the 
+        ‘BEGIN’ and ‘END’ keywords.  But all other statements within the 
+        ‘ARCHITECTURE’ execute concurrently [1].  In this particular example 
+        the process contains a statement that does multiplication.  Since 
+        multiplication is the operation that takes up the most resources other 
+        approaches should be considered [3].  Instead other methods like 
+        matrix multiplication are suggested where you use vectors in the form 
+        of a two dimensional array for the synapses of each layer [7].
+    </p>
+
+    <p class="body-text">The values we are multiplying also need to be 
+        represented with a reasonable number of bits.  Some studies have 
+        suggested that weights that are 16 bits and 8 bits for the inputs of 
+        activation function have produced good results since precision and 
+        resources have to be taken into account [7].  Others argue that the 
+        input should be 16 bits and the output should also be the same size 
+        [5].  The precision vs. resources issue is important since 
+        multiplication is performed three times for each neuron.
+    </p>
+
+    <p class="body-text">Since we are working in hardware VHDL provides us 
+        with data types that help us represent an array of bits.  One 
+        particular type is the standard logic vector which is shown in 
+        figure 2 [1].
+    </p>
+
+    <figure class="figure-image">
+        <img src="./src/images/std_logic_vector.png" 
+            alt="Code example of a standard logic vector">
+        <figcaption>Figure 2 – Declaring and initializing a standard logic 
+            vector.
+        </figcaption>
+    </figure>
+
+    <p class="body-text-no-indent">Here we have a standard logic vector for 
+        inputs that is 16 bits wide and is initialized to ‘0’ using a notation 
+        for hexadecimal.  Standard logic vectors may be used to implement 
+        matrix multiplication using nested for loops [7].  At the innermost 
+        loop a method of pipelining the multiplication is possible in order to 
+        minimize the use of hardware resources.  With inputs and weights that 
+        are 16 bits may be stored in registers during different stages of 
+        calculation [3].
+    </p>
+
+    <p class="body-text">For the case of calculating the net weighted sum, 
+        the inputs that describe how we do multiplication can also be assumed 
+        to be the inputs for the description of a perceptron.  The inputs 
+        along with the output of the neuron will be specified in the port map 
+        for the entity [2].  The output will most likely be the results from 
+        the activation function.
+    </p>
+
+    <p class="body-text">The sigmoid activation function can be implemented 
+        by using what is build right into the FPGA.  Many FPGAs have look-up 
+        tables built in that can be used to approximate the output to the 
+        activation function but there is the possibility of taking up a lot of 
+        space on the FPGA [4, 7].  Another proposed solution is to modify the 
+        sigmoid function so that it can be represented as a step function.  
+        The benefits are a simpler method of doing multiplication by shifting 
+        bits so less hardware is required [4].
+    </p>
+
+    <h3>Conclusion</h3>
+
+    <p class="body-text">We have shown that there are some benefits for 
+        implementing artificial neural networks in hardware when taking 
+        methods of parallelism and hardware resource saving techniques into 
+        consideration.  So by building up to the implementation by first 
+        introducing the concepts of an artificial neural network we have 
+        realized that there are several ways to define our architecture 
+        starting with the building blocks.  For example, the thought process 
+        behind the multiplication for the net weighted sum was discussed in 
+        detail.  The use of multiplication was disused in an effort to stress 
+        that multiplication takes up a lot of hardware resources.  Without 
+        careful planning when figuring out the best way to do multiplication 
+        it may be very difficult to fit an entire artificial network onto a 
+        FPGA.
+    </p>
+
+    <p class="body-text">With improvements in technology the implementation 
+        of artificial neural networks in hardware will become much easier for 
+        larger network.  But caution should be considered when testing 
+        performance with poor benchmarks.  One instance occurred when 
+        comparing performance was observed with the hardware implementation 
+        outperforming the software equivalent.  But the ANN was implemented in 
+        MATLAB which does not run directly on hardware [7].  Otherwise 
+        hardware should outperform the software and can be accomplished quite 
+        easily using VHDL while not losing sight of the software engineering 
+        aspect.
+    </p>
+
+    <h3>Appendix</h3>
+
+    <p class="body-text">It is important to realize that computer scientists 
+        can work with languages that are used to describe hardware to solve 
+        problems that are relative to their profession.  Besides using VHDL 
+        with the sole purpose of implementing hardware we can also simulate 
+        the design for research purposes.  For instance it may be possible to 
+        come up with a description of the back-propagation algorithm that is 
+        better suited for implementation in hardware.
+    </p>
+
+    <p class="body-text">But more research and experimentation may have to be 
+        done to see if the efficiency of the results of training is equivalent 
+        to that in software since data representation with respect to 
+        precision is important.  The industrial applications should be similar 
+        with the possibility of running and training the network in a shorter 
+        amount of time.  Since we are using FPGAs the network is 
+        reconfigurable so you can text the performance of the hardware without 
+        having to wait a long time for a manufacturer to design and implement 
+        an artificial neural network on a single purpose chip.
+    </p>
+
+    <p class="body-text">Ethical issues will be important depending on who is 
+        using the hardware implementation and on their intentions.  If 
+        testing is not performed properly then a faulty design may have an 
+        impact on projects or yield bad results for research.  But if caught 
+        early enough any faults in the design can be easily fixed while the 
+        most time lost may be from making sure the timing and propagation of 
+        the signals is correct.
+    </p>
+
+    <p class="body-text">The timing issue is what makes VHDL hard since we 
+        want to achieve the most available parallelism as possible while 
+        avoiding issues like race conditions.  Thus, computer programmers need 
+        to be familiar with these issues so that they do not forget that they 
+        are using a programming language that may seem very familiar to other 
+        languages.
+    </p>
+
+    <h3>References</h3>
+    <table>
+        <tr>
+            <td class="number">[1]</td>
+            <td>P. J. Ashenden, The Student’s Guide to VHDL, 2nd  ed. Burlington,  MA, Morgan Kaufmann, 2008.</td>
+        </tr>
+        <tr>
+            <td class="number">[2]</td>
+            <td>J. M. Avery, “Neural Network Development Using VHDL,” in ASIC Seminar and Exhibit, 1989. Proc., Second Annual IEEE, Rochester, NY, 1989, pp. P2-4.1-P2-4.4.</td>
+        </tr>
+        <tr>
+            <td class="number">[3]</td>
+            <td>M. A. Bohm.  (2009, November 28).  Design Techniques for Million Gate, 
+                High Speed FPGA [Online)].  Available: http://www.powershow.com/view/d3cf1-YzlmM/Design_Techniques_for_Million_Gate_High_Speed_FPGAs.
+                </td>
+        </tr>
+        <tr>
+            <td class="number">[4]</td>
+            <td>R. Gadea-Girones and A. Ramrez-Agundis, “FPGA Implementation of Non-linear Predictors: Application in Video Compression” in FPGA Implementations of Neural Networks,” A. R. Omondi, J. C. Rajapakse (Dordrecht, The Netherlands: 2006), pp.</td>
+        </tr>
+        <tr>
+            <td class="number">[5]</td>
+            <td>C.Latino, M. A. Moreno-Armendariz, and M. Hagan, "Realizing General MLP Networks with Minimal FPGA Resources," in Neural Networks, 2009. IJCNN 2009. Int. Joint Conference on, Atlanta, GA, 2009, pp.1722-1729.</td>
+        </tr>
+        <tr>
+            <td class="number">[6]</td>
+            <td>M. Negnevitsky, “Artificial Neural Networks,” in Artificial Intelligence: A Guide to Intelligent Systems, 2nd ed.  King’s Lynn, Great Britain: PEL, 2002, ch. 6, pp. 165-183.</td>
+        </tr>
+        <tr>
+            <td class="number">[7]</td>
+            <td>A. R. Omondi, J. C. Rajapakse, and M. Bajger, “FPGA Neurocomputers,” in FPGA Implementations of Neural Networks,” A. R. Omondi, J. C. Rajapakse (Dordrecht, The Netherlands: 2006), pp.</td>
+        </tr>
+        <tr>
+            <td class="number">[8]</td>
+            <td>E. Ordoñez-Cardenas and R. J. Romero-Troncoso, “MLP Neural Network and On-Line Backpropagation Learning Implementation in a Low-cost FPGA,” in Proc.18th ACM Great Lakes Symp. VLSI, Orlando, FL, 2008, pp. 33-338.</td>
+        </tr>
+        <tr>
+            <td class="number">[9]</td>
+            <td>Xilinx, “Configurable Logic Block (CLB) and Slice Resources,” Spartan-3E FPGA family: Data Sheet, Aug. 2009./td>
+        </tr>
+
+    </table>
 </body>
 </html>
