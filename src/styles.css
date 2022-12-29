@@ -87,7 +87,9 @@ h3 {
 
 .number {
     width: 35px;
+    vertical-align: top;
 }
+
 .section-1 {
     margin-top: 300px;
 }
